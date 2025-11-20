@@ -1,0 +1,42 @@
+{
+  "n_samples_total": 18,
+  "n_features": 30,
+  "train_size": 10,
+  "test_size": 8,
+  "best_params": {
+    "svr__C": 10,
+    "svr__epsilon": 1.0,
+    "svr__gamma": 0.01,
+    "svr__kernel": "rbf"
+  },
+  "train": {
+    "r2": 0.9028250423109524,
+    "explained_variance": 0.9028470313953014,
+    "mse": 0.7834730963679462,
+    "rmse": 0.8851401563413255,
+    "mae": 0.8129866961985381,
+    "median_ae": 0.9997492074604647,
+    "mape_pct": 28.219117501599573,
+    "max_error": 1.0003180261731437,
+    "pearson_r": 0.982107779417259,
+    "spearman_rho": 0.9515151515151514,
+    "kendall_tau": 0.8666666666666666,
+    "distance_correlation": 0.9745118778247666,
+    "concordance_ccc": 0.9368346857961332
+  },
+  "test": {
+    "r2": 0.6855904196451532,
+    "explained_variance": 0.7032865674406277,
+    "mse": 1.591698500546412,
+    "rmse": 1.2616253407990867,
+    "mae": 1.1091038142350405,
+    "median_ae": 1.3035436695054123,
+    "mape_pct": 29.087674062284485,
+    "max_error": 1.845209690019514,
+    "pearson_r": 0.9141835866896914,
+    "spearman_rho": 0.9523809523809524,
+    "kendall_tau": 0.8571428571428571,
+    "distance_correlation": 0.9063527829897755,
+    "concordance_ccc": 0.7631750755726839
+  }
+}

@@ -1,0 +1,15 @@
+Loading engineered features from: ..\Features\features_all_maps.csv
+Running GridSearchCV on TRAIN (cv=3) with params: {'svr__C': [1, 10, 100], 'svr__gamma': ['scale', 0.1, 0.01], 'svr__epsilon': [0.01, 0.1, 1.0], 'svr__kernel': ['rbf']}
+Best params: {'svr__C': 10, 'svr__epsilon': 1.0, 'svr__gamma': 0.01, 'svr__kernel': 'rbf'}
+Saved model: svm_model.joblib
+Saved train_predictions.csv
+Saved test_predictions.csv
+Saved metrics.json
+Saved pred_vs_true_train.png
+Saved pred_vs_true_test.png
+--- SUMMARY ---
+Total samples: 18 | Features: 30
+Train size (odd baseD): 10 | Test size (even baseD): 8
+Best SVR params: {'svr__C': 10, 'svr__epsilon': 1.0, 'svr__gamma': 0.01, 'svr__kernel': 'rbf'}
+Train metrics: r2=0.9028, explained_variance=0.9028, mse=0.7835, rmse=0.8851, mae=0.8130, median_ae=0.9997, mape_pct=28.2191, max_error=1.0003, pearson_r=0.9821, spearman_rho=0.9515, kendall_tau=0.8667, distance_correlation=0.9745, concordance_ccc=0.9368
+Test  metrics: r2=0.6856, explained_variance=0.7033, mse=1.5917, rmse=1.2616, mae=1.1091, median_ae=1.3035, mape_pct=29.0877, max_error=1.8452, pearson_r=0.9142, spearman_rho=0.9524, kendall_tau=0.8571, distance_correlation=0.9064, concordance_ccc=0.7632
