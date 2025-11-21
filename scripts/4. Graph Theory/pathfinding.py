@@ -34,7 +34,7 @@ from itertools import combinations
 import numpy as np
 import cv2
 
-# ===================== USER CONFIG =====================
+# PARAMS
 LEGEND_BASE_PATH   = Path("../legend_all_tiles.csv")   # <- your base CSV
 LEGEND_OTHER_PATH  = Path("../legend_other.csv")       # <- your others CSV
 TILES_BASE_DIR     = Path("../Tiles_Base")
@@ -124,14 +124,13 @@ LABEL_MAX_TRIES           = 16
 LABEL_NUDGE_PX            = 6
 
 DEBUG_LOGS = True
-# ======================================================
 
 NEIGH4 = [(1,0),(-1,0),(0,1),(0,-1)]
 NEIGH8 = NEIGH4 + [(1,1),(1,-1),(-1,1),(-1,-1)]
 
 DIR_VEC = {"L":(0,-1),"LEFT":(0,-1),"R":(0,1),"RIGHT":(0,1),"U":(-1,0),"UP":(-1,0),"D":(1,0),"DOWN":(1,0)}
 
-# ---------- small helpers ----------
+# helpers 
 def _scan_along_dir(grid_walk, start_rc, dir_rc, max_len, stop_at_block=True):
     H, W = grid_walk.shape
     out = []
@@ -291,7 +290,7 @@ def collect_base_by_source(legend_rows):
             by_src[src].append(r)
     return by_src
 
-# --------- DATA NORMALIZATION ----------
+# DATA NORMALIZATION
 def _fix_legend_bad_shift_inplace(rows_for_src, room_columns=4, shift_rows=11):
     if not rows_for_src:
         return
@@ -319,7 +318,7 @@ def dims_from_rows(rows_for_src):
     max_c = max(int(float(r.get("col",0))) for r in rows_for_src)
     return (max_r+1, max_c+1)
 
-# ---------- image reconstruction ----------
+# image reconstruction 
 def paste_rgba(dst_rgba, src_rgba, x, y):
     """Alpha composite src onto dst at (x,y)."""
     H, W = dst_rgba.shape[:2]
@@ -414,7 +413,7 @@ def compose(base_rgba, others_rgba):
     paste_rgba(combined, ensure_rgba(others_rgba), 0, 0)
     return combined
 
-# ---------- passability & endpoints ----------
+# passability & endpoints
 def build_passability_presence_and_liquid(rows, H, W):
     grid = np.zeros((H, W), dtype=bool)
     present = np.zeros((H, W), dtype=bool)
@@ -460,7 +459,6 @@ def load_ends_from_legend_other(base_source_key_norm, legend_other_rows):
             ends.append((int(float(r["cy"]) // TILE_H), int(float(r["cx"]) // TILE_W)))
     return ends
 
-# ---------- arrows (one-way openings) ----------
 DIR_VEC = {"L": (0,-1), "R": (0,1), "U": (-1,0), "D": (1,0)}
 
 def _parse_arrow_dir_str(s: str) -> str:
@@ -597,7 +595,7 @@ def load_oneway_arrows_for_src(base_source_key_norm, legend_other_rows, grid_wal
 
     return arrows, edge_dir_map
 
-# ---------- BFS (with arrow constraints & liquid rule) ----------
+# BFS (with arrow constraints & liquid rule)
 def bfs_from_sources(grid, sources, diagonal=False, liquid_mask=None, arrow_edges=None):
     H, W = grid.shape
     neigh = NEIGH8 if diagonal else NEIGH4
@@ -646,7 +644,7 @@ def bfs_from_sources(grid, sources, diagonal=False, liquid_mask=None, arrow_edge
 def bfs_single_source(grid, start_rc, diagonal=False, liquid_mask=None, arrow_edges=None):
     return bfs_from_sources(grid, [start_rc], diagonal=diagonal, liquid_mask=liquid_mask, arrow_edges=arrow_edges)
 
-# ---------- portal detection & tele-BFS ----------
+# portal detection & tele-BFS
 def detect_portal_pairs_for_src(base_source_key_norm, legend_other_rows):
     buckets = defaultdict(list)  # idx_norm -> [(x,y,(r,c)), ...]
     for r in legend_other_rows:
@@ -766,7 +764,7 @@ def reconstruct_path_with_tele(parent, endpoint):
     path.reverse()
     return path
 
-# ---------- drawing helpers ----------
+# drawing helpers
 def _blend_rect_rgba(dst, x1, y1, x2, y2, color_bgra=(0,0,0,200)):
     H, W = dst.shape[:2]
     x1 = max(0, min(W, x1)); x2 = max(0, min(W, x2))
@@ -938,7 +936,7 @@ def concat_paths(a, b):
     if not b: return a or []
     return a + (b[1:] if a[-1] == b[0] else b)
 
-# ---------- collectibles/enemies/doors/rooms ----------
+# collectibles/enemies/doors/rooms
 def _collect_collectibles_for_src(base_source_key_norm, legend_other_rows, indices_set):
     pts = []
     for r in legend_other_rows:
@@ -1064,7 +1062,7 @@ def enforce_room_enemies_then_door(current_rc, grid_walk, liquid_mask, arrow_edg
 
     return current_rc, final_path, enemies_visited
 
-# ===================== MAIN =====================
+# MAIN
 def main():
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -1158,7 +1156,7 @@ def main():
             goal_chosen = None
             visited_tags = []
             
-            # --- gather collectibles: ladders (from BASE rows) + keys/bombs (from legend_other)
+            # gather collectibles: ladders (from BASE rows) + keys/bombs (from legend_other)
             raw_collect_other = _collect_collectibles_for_src(base_key_norm, other_rows, COLLECT_OTHER_INDICES)
             collect_ladders_base = _collect_ladders_from_base(rows)  # [(r,c,'LADDER'), ...]
             
@@ -1175,7 +1173,7 @@ def main():
             bombs_collected = 0
             ladders_collected = 0
 
-            # --- enemies (unchanged, but we keep as TRIPLES)
+            # enemies (unchanged, but we keep as TRIPLES)
             raw_enemies = [
                 r for r in other_rows
                 if normalize_other_source(r.get("source","")) == base_key_norm
@@ -1204,7 +1202,7 @@ def main():
                         enemies_by_room[rid].append((er, ec))
 
 
-            # --- build enemies as TRIPLES (r, c, idx) ---
+            # build enemies as TRIPLES (r, c, idx)
             raw_enemies = [
                 r for r in other_rows
                 if normalize_other_source(r.get("source","")) == base_key_norm

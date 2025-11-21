@@ -32,9 +32,7 @@ from torch.utils.data import Dataset, DataLoader
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import r2_score, mean_absolute_error
 
-# =========================
-# CONFIG
-# =========================
+# PARAMS
 PARAMS = {
     "features_csv": "../Features/features_all_maps.csv",  # input
     "out_dir": "../Transformer_Output",                   # outputs
@@ -64,9 +62,7 @@ PARAMS = {
     "seed": 42,
 }
 
-# =========================
 # UTILITIES
-# =========================
 def set_seed(seed=42):
     random.seed(seed); np.random.seed(seed); torch.manual_seed(seed)
     if torch.cuda.is_available(): torch.cuda.manual_seed_all(seed)
@@ -89,9 +85,7 @@ def standardize_train_test(Xtr_list: List[np.ndarray],
     Xte_std = [scaler.transform(X) if X.size else X for X in Xte_list]
     return Xtr_std, Xte_std
 
-# =========================
 # DATA LOADING
-# =========================
 META_COLS = ["key", "baseD", "quest", "H", "W"]
 
 def load_feature_table(path: str|Path) -> pd.DataFrame:
@@ -185,9 +179,7 @@ def split_train_val(train_seqs: List[Dict], val_frac: float, seed: int = 42):
         tr, va = train_seqs, []
     return tr, va
 
-# =========================
 # DATASET & COLLATE
-# =========================
 class SeqDataset(Dataset):
     def __init__(self, seqs: List[Dict]):
         self.seqs = seqs
@@ -218,9 +210,7 @@ def collate_pad(batch):
         metas.append(meta)
     return Xp, yp, mask, metas
 
-# =========================
 # MODEL
-# =========================
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model: int, max_len: int = 10000):
         super().__init__()
@@ -255,9 +245,7 @@ class TransformerRegressor(nn.Module):
         out = self.head(Z).squeeze(-1)   # (B, T)
         return out
 
-# =========================
 # TRAINING
-# =========================
 @torch.no_grad()
 def evaluate(model, dl, device="cpu"):
     model.eval()
@@ -330,9 +318,7 @@ def train_model(model, dl_train, dl_val, device="cpu"):
     if best_state is not None:
         model.load_state_dict(best_state)
 
-# =========================
 # MAIN
-# =========================
 if __name__ == "__main__":
     set_seed(PARAMS["seed"])
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -396,7 +382,7 @@ if __name__ == "__main__":
     (out_dir / "metrics.json").write_text(json.dumps(metrics, indent=2), encoding="utf-8")
     print(json.dumps(metrics, indent=2))
 
-    # ---- Save per-time-step predictions (TEST only)
+    # Save per-time-step predictions (TEST only)
     if dl_te is not None:
         rows = []
         model.eval()
@@ -419,7 +405,7 @@ if __name__ == "__main__":
                         })
         pd.DataFrame(rows).to_csv(out_dir / "transformer_preds.csv", index=False)
 
-        # ---- Plot pred vs true
+        # Plot pred vs true
         if yte_true.size and yte_pred.size:
             plt.figure(figsize=(5,4))
             plt.scatter(yte_true, yte_pred, s=18, alpha=0.9)

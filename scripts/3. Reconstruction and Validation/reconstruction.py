@@ -24,9 +24,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-# =======================
-# ======= PARAMS ========
-# =======================
+# PARAMS
 LEGEND_BASE_CSV   = "../legend_all_tiles.csv"
 LEGEND_OTHER_CSV  = "../legend_other.csv"
 TILES_BASE_DIR    = "../Tiles_Base"
@@ -55,11 +53,8 @@ CUSTOM_SOURCE_ALIASES: Dict[str, str] = {
 
 SAVE_DPI = (300, 300)
 IMG_EXTS = {".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"}
-# =======================
 
-
-# ---------- source normalization ----------
-
+# source normalization
 def normalize_source_name(s: str) -> str:
     """
     Normalize variants like 'tloz1_1e.png' -> 'tloz1_1' (so 'e' overlays map to base).
@@ -92,7 +87,7 @@ def _safe_dirname(name: str) -> str:
     return s or "unnamed"
 
 
-# ---------- CSV normalizers ----------
+# CSV normalizers 
 
 def _norm_base(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -177,7 +172,7 @@ def _norm_other(df: pd.DataFrame) -> pd.DataFrame:
     return df[["index", "filename", "source", "x", "y", "w", "h", "tile_r0", "tile_c0", "tile_r1", "tile_c1"]]
 
 
-# ---------- helper: tiles & canvas sizes ----------
+# helper: tiles & canvas sizes
 
 def _load_base_tile(tiles_dir: Path, idx: int) -> Optional[Image.Image]:
     for p in (tiles_dir / f"tile_{idx}.png", tiles_dir / f"tile_{idx:04d}.png"):
@@ -267,7 +262,7 @@ def lookup_canvas_for_source(src_norm: str, index: Dict[str, Tuple[int, int, Pat
     return None
 
 
-# ---------- positional fusion ----------
+# positional fusion
 
 def _series_has_all(df: pd.DataFrame, cols: List[str]) -> bool:
     return all(c in df.columns and df[c].notna().any() for c in cols)
@@ -396,7 +391,7 @@ def _reconcile_other_xywh(
     return x, y, w, h, note
 
 
-# ---------- reconstructors ----------
+# reconstructors
 
 def reconstruct_base(
     df_base: pd.DataFrame,
@@ -494,7 +489,7 @@ def save_triplet(folder: Path, base_img: Image.Image, other_img: Image.Image, ov
     overlay_img.save(folder / "reconstruct_overlay.png", dpi=SAVE_DPI)
 
 
-# ---------- pipeline ----------
+# pipeline 
 
 def main():
     tiles_base = Path(TILES_BASE_DIR)
@@ -519,7 +514,7 @@ def main():
     else:
         tile_w_fallback, tile_h_fallback = FORCE_TILE_SIZE
 
-    # ---------- OVERALL ----------
+    # OVERALL 
     if REFERENCE_IMAGE_PATH and Path(REFERENCE_IMAGE_PATH).exists():
         ref = Image.open(REFERENCE_IMAGE_PATH); base_W, base_H = ref.size
     else:
@@ -542,7 +537,7 @@ def main():
     save_triplet(out_root / "overall", base_overall, other_overall, overlay_overall)
     print(f"[OVERALL] canvas={base_W}x{base_H}  tiles={tile_w_overall}x{tile_h_overall}  origin=({ox_all},{oy_all}) via {reason_all}")
 
-    # ---------- PER-SOURCE ----------
+    # PER-SOURCE
     sources = sorted(set(df_base["source"].unique()).union(set(df_other["source"].unique())))
     for src in sources:
         b = df_base[df_base["source"] == src]

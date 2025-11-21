@@ -23,7 +23,7 @@ import cv2
 from collections import deque
 import heapq
 
-# ===============================================================
+# PARAMS
 PARAMS = {
     "LEGEND_BASE_PATH": Path("../legend_all_tiles.csv"),
     "LEGEND_OTHER_PATH": Path("../legend_other.csv"),   # not used here but kept for consistency
@@ -50,7 +50,6 @@ PARAMS = {
     "SAVE_SEGMENT_CSVS": True,
     "VERBOSE": True
 }
-# ===============================================================
 
 def log(msg):
     if PARAMS["VERBOSE"]:
@@ -103,7 +102,7 @@ def load_path(map_id, H, W):
     df = pd.read_csv(p)
     return [(int(r), int(c)) for r, c in zip(df["row"], df["col"]) if 0 <= r < H and 0 <= c < W]
 
-# ===================== Door→Door incremental MDP ======================
+#  Door→Door incremental MDP 
 def bfs_distance(walk, mask, start):
     """4-neighbour BFS distance restricted to walk & mask."""
     H, W = walk.shape
@@ -145,7 +144,6 @@ def door_to_door_prob(walk, mask, entry, exit_):
         prob[exit_] = 1.0
     prob[~mask] = 0.0
     return prob
-# =====================================================================
 
 def lad_dispersion(prob, mask, path_pts, k, b, solids):
     H, W = prob.shape
@@ -228,7 +226,6 @@ def draw_path(img, path, H, W):
         cv2.line(img, (x0, y0), (x1, y1), PARAMS["PATH_COLOR"], t, cv2.LINE_AA)
     return img
 
-# ---------------------------------------------------------------
 def process_map(map_id, base_df, out_dir):
     log(f"\n[MAP] {map_id}")
     H, W, walk, exits, solids = build_grid(base_df)
@@ -258,7 +255,7 @@ def process_map(map_id, base_df, out_dir):
             continue
         mask = (labels == comp)
 
-        # -------- Door→Door incremental MDP (reset per room) ----------
+        # Door→Door incremental MDP (reset per room)
         entry = seg[0]
         exit_ = seg[-1]
         p0 = door_to_door_prob(walk, mask, entry, exit_)   # 0 at entry, 1 at exit
@@ -286,7 +283,6 @@ def process_map(map_id, base_df, out_dir):
     cv2.imwrite(str(out_dir / f"lad_pathline_{map_id}.png"), pathline)
     log(f"[SAVE] lad_pathline_{map_id}.png")
 
-# ---------------------------------------------------------------
 def main():
     out = PARAMS["OUT_DIR"]
     out.mkdir(parents=True, exist_ok=True)
@@ -300,5 +296,6 @@ def main():
             log(f"[ERROR] {m}: {e}")
     log("[DONE]")
 
+# MAIN
 if __name__ == "__main__":
     main()

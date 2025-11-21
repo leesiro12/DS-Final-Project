@@ -20,10 +20,7 @@ import numpy as np
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
-# ============================================================
-# CONFIGURATION
-# ============================================================
-
+# PARAMS
 INPUT_DIR          = Path("../Data/")
 OUT_DIR_TILES      = Path("../Tiles_Base")
 OUT_DIR_ROOT       = Path("../")
@@ -62,10 +59,7 @@ AXIS_FONT_SIZE     = 10       # axis label font
 AXIS_TITLE_GAP     = 2        # gap between top/left bars and "Col"/"Row"
 AXIS_TITLE_FONT_SZ = 10
 
-# ============================================================
 # UTILITIES
-# ============================================================
-
 def ensure_dirs(*paths: Path):
     for p in paths:
         p.mkdir(parents=True, exist_ok=True)
@@ -158,9 +152,8 @@ def draw_axes(canvas: Image.Image, rows: int, cols: int, tile_size: int, tile_sp
     d.text((max(2, (axis_left - rtw)//2), axis_top + 4),
            title_row, fill=(200,255,200,230), font=font_title)
 
-# ============================================================
-# MAIN LOGIC
-# ============================================================
+
+# MAIN 
 
 def main():
     ensure_dirs(OUT_DIR_ROOT, OUT_DIR_TILES, OUT_CATALOGUE)
@@ -317,9 +310,7 @@ def main():
     print(f"[ok] JSON legend → {LEGEND_PATH_JSON.name}")
     print(f"[ok] CSV legend  → {LEGEND_PATH_CSV.name}")
 
-# ============================================================
-# ENTRY
-# ============================================================
+# MAIN
 
 if __name__ == "__main__":
     main()

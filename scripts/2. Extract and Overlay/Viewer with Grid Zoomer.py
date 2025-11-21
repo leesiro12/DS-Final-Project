@@ -23,7 +23,7 @@ try:
 except Exception:
     _HAS_TK = False
 
-# ====================== CONFIG ======================
+# PARAMS 
 IMAGE_PATH    = "../Validation/tloz7_2_png_overlay_walkable.png"         # e.g., r"C:\...\tloz1_1.png"; leave "" to choose via dialog
 TILE_W        = 16         # tile width  (px, image space)
 TILE_H        = 16         # tile height (px, image space)
@@ -35,7 +35,6 @@ GRID_EVERY    = 1          # draw minor lines every Nth tile
 MAJOR_EVERY   = 4          # draw a thicker/brighter major line every N tiles
 VIEWER_MARGIN = 16         # px margin around the viewer (pads the page)
 AUTO_OPEN     = True       # open the HTML in your default browser
-# =====================================================
 
 _HTML_TEMPLATE = """\
 <!DOCTYPE html>
@@ -396,7 +395,7 @@ def generate_html(image_path: Path) -> Path:
             print(f"[WARN] Could not open in browser automatically: {e}")
     return out_html
 
-# ======================= RUN =======================
+# MAIN
 if __name__ == "__main__" or True:
     try:
         img = IMAGE_PATH.strip()

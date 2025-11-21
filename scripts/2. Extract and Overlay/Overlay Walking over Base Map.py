@@ -2,13 +2,12 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import annotations
-
-# ========== 1) Parameters (single source of truth) ==========
 import os, sys, re
 from typing import Optional, Tuple, Dict
 import pandas as pd
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
+# PARAMS
 PARAMS: Dict[str, object] = {
 
     
@@ -17,12 +16,6 @@ PARAMS: Dict[str, object] = {
     "SOURCE_EXT": ".png",
     "OUT_DIR": "../Validation",
 
-    # ==========================================================
-    # === COLUMN NAMING AND NORMALIZATION ======================
-    # ==========================================================
-
-    # The name of the column in the CSV that identifies which map
-    # a given row belongs to (e.g., "source", "map_id", or "screen_id").
     # This column is used to group CSV rows before overlaying.
     "MAP_ID_COLUMN": "source",
 
@@ -45,28 +38,11 @@ PARAMS: Dict[str, object] = {
         # "tile_h": "tile_h",   # Force tile height column
     },
 
-    # ==========================================================
-    # === TILE GEOMETRY AND COORDINATE SYSTEM ==================
-    # ==========================================================
 
-    # Default tile width (in pixels). This is used when the CSV
-    # doesn’t specify tile dimensions per entry.
     "DEFAULT_TILE_W": 16,
-
-    # Default tile height (in pixels).
     "DEFAULT_TILE_H": 16,
-
-    # X-axis offset for grid alignment (in pixels).
-    # Used when the map doesn’t start exactly at pixel (0, 0),
-    # or when you want to visually shift the grid slightly.
     "GRID_OFFSET_X": 0,
-
-    # Y-axis offset for grid alignment (in pixels).
     "GRID_OFFSET_Y": 0,
-
-    # ==========================================================
-    # === WALKABILITY DOT STYLING ==============================
-    # ==========================================================
 
     # Radius of the dot (in pixels) drawn at the center of each
     # walkable tile. The dot visually marks passable areas.
@@ -75,70 +51,32 @@ PARAMS: Dict[str, object] = {
     # Fill color for the walkable dot (in RGB).
     # Default: yellow = (255, 255, 0)
     "DOT_FILL_RGB": (255, 255, 0),
-
-    # Alpha (transparency) of the dot fill color.
-    # Range: 0 (transparent) → 255 (opaque)
+    
     "DOT_FILL_ALPHA": 230,
-
-    # Stroke (outline) color for the dot (RGB).
-    # Default: black = (0, 0, 0)
     "DOT_STROKE_RGB": (0, 0, 0),
-
-    # Stroke alpha (transparency).
     "DOT_STROKE_ALPHA": 255,
 
     # Stroke width (in pixels) for the dot outline.
     "DOT_STROKE_WIDTH": 1,
 
-    # ==========================================================
-    # === GLOW EFFECT AROUND WALKABLE DOTS =====================
-    # ==========================================================
-
-    # Whether to add a soft glow around walkable dots.
+    # Add a soft glow around walkable dots.
     # This creates a halo effect to make the dot more visible.
     "ADD_GLOW": True,
-
-    # Color of the glow (in RGB).
     "GLOW_COLOR_RGB": (255, 255, 0),
-
-    # Transparency level of the glow color.
     "GLOW_ALPHA": 130,
-
-    # Blur radius (in pixels) used for the Gaussian blur
-    # that produces the glow’s softness.
     "GLOW_RADIUS": 4,
-
-    # Expansion radius (in pixels). This increases the glow area
-    # before applying the blur to make it more pronounced.
     "GLOW_EXPAND": 4,
-
-    # ==========================================================
-    # === DIMMING NON-WALKABLE TILES ===========================
-    # ==========================================================
 
     # If True, non-walkable tiles are darkened by overlaying a
     # semi-transparent layer over them. Walkable tiles remain bright.
     "DIM_NON_WALKABLE": True,
-
-    # Alpha (transparency) of the dimming layer.
-    # Higher values → darker effect. Range 0–255.
     "DIM_ALPHA": 140,
 
-    # ==========================================================
-    # === GRID AND AXES VISUALIZATION ==========================
-    # ==========================================================
-
-    # Whether to draw the tile grid overlay.
+    # Draw the tile grid overlay.
     # The grid helps visualize tile boundaries.
     "DRAW_GRID": True,
-
-    # Color of the grid lines (RGB).
     "GRID_COLOR_RGB": (255, 255, 255),
-
-    # Transparency (alpha) of grid lines.
     "GRID_ALPHA": 90,
-
-    # Thickness (in pixels) of grid lines.
     "GRID_LINE_WIDTH": 1,
 
     # Frequency of grid lines. Example:
@@ -146,48 +84,21 @@ PARAMS: Dict[str, object] = {
     # 2 → draw every other tile
     "GRID_EVERY_TILE": 1,
 
-    # ==========================================================
-    # === AXES LABELS (ROW/COLUMN INDICES) =====================
-    # ==========================================================
-
-    # Whether to display tile indices (row/col numbers) along
+    # Display tile indices (row/col numbers) along
     # the top and left axes for reference.
     "DRAW_AXES": True,
-
-    # Determines numbering style:
-    # 0 → zero-based indexing (rows start at 0)
-    # 1 → one-based indexing (rows start at 1)
     "AXIS_INDEX_START": 0,
-
-    # Frequency of axis labels (i.e., label every Nth tile).
     "AXIS_LABEL_EVERY": 4,
-
-    # Font size (in pixels) for the axis labels.
     "AXIS_FONT_SIZE": 12,
-
-    # Color of the axis label text (RGB).
     "AXIS_TEXT_RGB": (255, 255, 255),
-
-    # Transparency level for the axis text.
     "AXIS_TEXT_ALPHA": 220,
-
-    # Stroke (outline) color of the axis text.
     "AXIS_TEXT_STROKE_RGB": (0, 0, 0),
-
-    # Stroke alpha (transparency) for axis text outlines.
     "AXIS_TEXT_STROKE_ALPHA": 255,
-
-    # Width (in pixels) of the axis text outline.
-    # Slightly higher values make the text more readable on bright maps.
     "AXIS_TEXT_STROKE_WIDTH": 2,
 
     # Optional fine-tuning offset (in pixels) for text placement.
     # Adjust when text overlaps grid lines or needs alignment tweaks.
     "AXIS_OFFSET_PX": 0,
-
-    # ==========================================================
-    # === GENERAL CONTROL ======================================
-    # ==========================================================
 
     # If True, prints progress information, detected columns,
     # and per-map status messages to the console.
@@ -195,7 +106,7 @@ PARAMS: Dict[str, object] = {
     "VERBOSE": True,
 }
 
-# ========== 2) Column autodetection (schema-tolerant) ==========
+# Column autodetection (schema-tolerant)
 def _cols_map(df: pd.DataFrame) -> dict:
     return {c.lower(): c for c in df.columns}
 
@@ -250,7 +161,7 @@ def infer_tile_size(df: pd.DataFrame, cols) -> Tuple[int, int]:
     return (tw or int(PARAMS["DEFAULT_TILE_W"]),
             th or int(PARAMS["DEFAULT_TILE_H"]))
 
-# ========== 3) Helpers (paths, colors, sanitization, flags) ==========
+# Helpers (paths, colors, sanitization, flags)
 def is_walkable(v: object) -> bool:
     """Classify walkable tiles using normalized truthy labels."""
     if pd.isna(v): return False
@@ -278,7 +189,7 @@ def _sanitize(s: str) -> str:
     s = re.sub(r"[^\w\-]+", "_", str(s))
     return s.strip("_") or "map"
 
-# ========== 4) Layers (composable rendering units) ==========
+# Layers (composable rendering units)
 def dot_layers_for_map(sdf: pd.DataFrame, cols, base_size: Tuple[int, int]) -> Tuple[Image.Image, Image.Image]:
     """
     Walkable center dots (+ optional glow).
@@ -456,7 +367,7 @@ def axes_layer(base_size: Tuple[int, int], tw: int, th: int, ox: int, oy: int) -
 
     return layer
 
-# ========== 5) Main (CSV -> groups -> compose -> write) ==========
+# MAIN 
 def main():
     # Load CSV
     csv_path = str(PARAMS["CSV_PATH"])

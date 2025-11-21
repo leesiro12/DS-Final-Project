@@ -39,7 +39,7 @@ try:
 except Exception:
     PIL_OK = False
 
-# ================== CONFIG ==================
+# PARAMS
 INPUT_DIR    = Path("../Data")                    # where your overlaid map PNGs live
 TILES_DIR    = Path("../Tiles_Base")                # directory of 16x16 tiles
 OUT_ROOT     = Path("../Tiles_Other")
@@ -63,7 +63,7 @@ MIN_AREA_PX = 8                              # ignore tiny specks
 CONNECTIVITY = 8
 MORPH_OPEN   = 0                             # >0 to denoise component mask (radius px)
 
-# -------- Catalogue layout --------
+# Catalogue layout
 CAT_PAGE_W  = 2200
 CAT_PAGE_H  = 3000
 CAT_MARGIN  = 40
@@ -82,7 +82,7 @@ TEXT_COLOR  = (20, 20, 20, 255)
 BG_COLOR    = (245, 245, 245, 255)
 CELL_COLOR  = (255, 255, 255, 255)
 
-# -------- Index overlay options (NEW) --------
+# Index overlay options
 MAKE_INDEX_OVERLAYS = True
 SEARCH_DIRS         = [Path("."), Path("sources"), Path("sources_with_others")]
 
@@ -96,8 +96,6 @@ DOT_RADIUS_MIN      = 2
 DOT_RADIUS_MAX      = 6
 DOT_COLOR_INNER     = (255, 255, 0)   # BGR (yellow-ish)
 DOT_COLOR_BASE      = (0, 0, 0)       # BGR (black)
-# =====================================================
-
 
 def ensure_dirs(*paths):
     for p in paths: p.mkdir(parents=True, exist_ok=True)
@@ -195,7 +193,7 @@ def save_sprite_cv2(rgba, out_path: Path):
     bgra = cv2.cvtColor(rgba, cv2.COLOR_RGBA2BGRA)
     return bool(cv2.imwrite(str(out_path), bgra))
 
-# ---------- Base legend handling (for overlay alignment) ----------
+# Base legend handling (for overlay alignment)
 
 def norm_source_key(name: str) -> str:
     """
@@ -254,7 +252,7 @@ def align_to_base_if_needed(rgba: np.ndarray,
         return None, (f"[skip] {map_name}: size {W}x{H} does not match base {baseW}x{baseH} "
                       f"and is not a uniform scale; skipping to preserve coordinate fidelity.")
 
-# ---------------------- CATALOGUE BUILDERS ----------------------
+# CATALOGUE BUILDERS
 
 def _blank_page():
     page = np.zeros((CAT_PAGE_H, CAT_PAGE_W, 4), dtype=np.uint8)
@@ -357,7 +355,7 @@ def build_catalogue_pages(items: List[dict], title: str, out_dir: Path) -> List[
             pass
     return pages_png
 
-# ---------------------- INDEX OVERLAY HELPERS (NEW) ----------------------
+# INDEX OVERLAY HELPERS
 
 def _find_source_image(source_name: str) -> Optional[Path]:
     """
@@ -449,7 +447,7 @@ def _overlay_indices_for_source(source_name: str, rows: List[List], out_dir: Pat
     print(f"[ok] {source_name}: {drawn} index label(s) → {out_path}")
     return True
 
-# ---------------------- MAIN ----------------------
+# MAIN
 
 def main():
     ensure_dirs(OUT_ROOT, OUT_OTHERS, OUT_DEBUG, OUT_CATALOG, OUT_CATALOG / "by_source", OUT_CATALOG / "master", OUT_OVERLAYS)

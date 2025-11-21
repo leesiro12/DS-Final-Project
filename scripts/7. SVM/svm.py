@@ -37,9 +37,7 @@ from sklearn.metrics import (
 from scipy.stats import spearmanr, kendalltau
 import joblib
 
-# =========================
-# CONFIG
-# =========================
+# PARAMS
 CONFIG = {
     "FEATURES_CSV": "../Features/features_all_maps.csv",  # <-- your engineered features file
     "OUT_DIR": "../SVM_Outputs",
@@ -54,18 +52,14 @@ CONFIG = {
     "SEED": 42,
 }
 
-# =========================
 # Logging
-# =========================
 _log_lines: List[str] = []
 def log(msg: str) -> None:
     _log_lines.append(msg)
     if CONFIG.get("VERBOSE", True):
         print(msg)
 
-# =========================
 # Correlations & metrics
-# =========================
 def pearson_r(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     if len(y_true) < 2:
         return float('nan')
@@ -134,9 +128,7 @@ def save_pred_true_plot(y_true: np.ndarray, y_pred: np.ndarray, out_path: Path, 
     plt.savefig(out_path, dpi=220)
     plt.close()
 
-# =========================
 # Data loading & split
-# =========================
 def load_features_table(path: Path) -> pd.DataFrame:
     if not path.exists():
         raise SystemExit(f"Features file not found: {path}")
@@ -177,9 +169,7 @@ def split_train_test(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series, pd.Data
     y_test  = test["label"].astype(float)
     return X_train, y_train, X_test, y_test
 
-# =========================
 # Training
-# =========================
 def fit_svr(X_train: pd.DataFrame, y_train: pd.Series) -> GridSearchCV | Pipeline:
     # If too few samples for CV, fit a default pipeline
     n = len(y_train)
@@ -207,9 +197,7 @@ def fit_svr(X_train: pd.DataFrame, y_train: pd.Series) -> GridSearchCV | Pipelin
     log(f"Best params: {getattr(gscv, 'best_params_', {})}")
     return gscv
 
-# =========================
-# Main
-# =========================
+# MAIN
 def main():
     out_dir = Path(CONFIG["OUT_DIR"]); out_dir.mkdir(parents=True, exist_ok=True)
     feats_path = Path(CONFIG["FEATURES_CSV"])

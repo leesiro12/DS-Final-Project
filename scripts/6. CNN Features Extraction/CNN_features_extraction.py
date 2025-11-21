@@ -20,9 +20,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 import numpy as np
 import pandas as pd
 
-# =========================
-# CONFIG
-# =========================
+# PARAMS
 PARAMS = {
     # where your CSVs are
     "prob_dir": "../MDP_LAD_Output",   # prob_matrix_tlozD_Q.csv
@@ -36,9 +34,7 @@ PARAMS = {
     "neighbor_kernel": 1,              # radius for local stats (3 -> 3x3)
 }
 
-# =========================
-# CSV READERS (ROBUST)
-# =========================
+# CSV READERS
 def _read_grid_csv(path: Path) -> np.ndarray:
     """
     Robust 2D numeric CSV reader:
@@ -122,9 +118,7 @@ def _read_shortest_path_as_grid(path: Path, H: int, W: int) -> np.ndarray:
         mask[rr, cc] = 1.0
     return mask
 
-# =========================
-# FEATURE HELPERS
-# =========================
+# Helpers
 def entropy_from_prob(prob: np.ndarray, eps=1e-9) -> float:
     p = prob.clip(min=0.0)
     s = p.sum()
@@ -258,9 +252,7 @@ def extract_ordered_path(mask: np.ndarray) -> List[Tuple[int,int]]:
 
     return best_path
 
-# =========================
 # ENGINEERED FEATURES (PER MAP)
-# =========================
 def engineered_features(prob: np.ndarray, sp: np.ndarray, key: str, baseD: int, quest: int,
                         k_neigh: int = 3) -> Dict[str, float]:
     # Normalize prob into [0,1] if outside
@@ -345,9 +337,7 @@ def engineered_features(prob: np.ndarray, sp: np.ndarray, key: str, baseD: int, 
     feat["prob_path_minus_global"] = feat["prob_on_path_mean"] - feat["prob_mean"]
     return feat
 
-# =========================
-# DISCOVERY & MAIN
-# =========================
+# MAIN
 def discover_pairs(prob_dir: Path, path_dir: Path):
     """
     Find all (prob_matrix, shortest_path) pairs across two directories.
